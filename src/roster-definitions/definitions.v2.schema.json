@@ -993,6 +993,17 @@
         },
         "includes": {
           "$ref": "#/$defs/someCounts"
+        },
+        "rules": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/ids"
+            },
+            {
+              "type": "array",
+              "minItems": 1
+            }
+          ]
         }
       }
     },

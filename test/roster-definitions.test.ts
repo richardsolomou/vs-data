@@ -1226,3 +1226,29 @@ test("an option is made together with others in one entry only", () => {
   });
   assert.ok(!validated.ok && validated.errors.includes(`unit:${WARDENS} uniformOptions/1 names roster-option:${WARDENS}.leader-weapon, which another entry names`));
 });
+
+/** The 1.2 definitions with the ward shield naming a rule summary as its rule, listed and referenced as given. */
+const wargearRules = (referenced: boolean, listed = true) => {
+  const { identity, records } = input("1.2");
+  const rule = "synthetic.ward-shield.warding";
+  if (listed) identity.entries.push({ kind: "ability", id: rule, name: "Warding" });
+  if (referenced) {
+    const shield = identity.entries.find((e) => e.id === "synthetic.ward-shield")!;
+    shield.references = [...(shield.references ?? []), { kind: "ability", id: rule }];
+  }
+  (find(records, "wargear", "synthetic.ward-shield").data as any).rules = [rule];
+  const result = validateDefinitions(identity, records);
+  return result.ok ? [] : result.errors;
+};
+
+test("a piece of wargear names the rule summaries of the rules it gives", () => {
+  assert.deepEqual(wargearRules(true), []);
+});
+
+test("a piece of wargear's rule must be referenced by its identity entry", () => {
+  assert.ok(wargearRules(false).includes("wargear:synthetic.ward-shield names ability:synthetic.ward-shield.warding but its identity entry does not reference it"));
+});
+
+test("a piece of wargear's rule must be a current entry", () => {
+  assert.ok(wargearRules(false, false).includes("wargear:synthetic.ward-shield names ability:synthetic.ward-shield.warding, which is not a current entry"));
+});
