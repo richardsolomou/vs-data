@@ -120,7 +120,8 @@ export type TransportProfileData = {
   unit: string;
   capacity?: {
     loads: TransportPool[][];
-    whenEquipped?: { wargear: string; pool: TransportPool }[];
+    /** A pool that replaces the first load's first pool while the transport carries `wargear`, or its unit includes `model`. */
+    whenEquipped?: (({ wargear: string; model?: never } | { model: string; wargear?: never }) & { pool: TransportPool })[];
     excluded?: { selectors: string[]; except?: string[] }[];
     space?: { selectors?: string[]; moreWoundsThan?: number; size: number }[];
   };
@@ -169,7 +170,10 @@ function namedRefs(kind: ProfileKind, data: any): Ref[] {
   const unit = refs("unit", [data.unit]);
   if (kind === "unit-profile") return [...unit, ...refs("model", data.models), ...baseRefs(data.baseSize)];
   if (kind === "weapon-profile") return [...unit, ...refs("wargear", data.wargear ? [data.wargear] : [])];
-  if (kind === "transport-profile") return [...unit, ...refs("wargear", (data as TransportProfileData).capacity?.whenEquipped?.map(({ wargear }) => wargear))];
+  if (kind === "transport-profile") {
+    const equipped = (data as TransportProfileData).capacity?.whenEquipped ?? [];
+    return [...unit, ...refs("wargear", equipped.flatMap(({ wargear }) => wargear ?? [])), ...refs("model", equipped.flatMap(({ model }) => model ?? []))];
+  }
   const conditional: ConditionalAttachment[] = data.conditional ?? [];
   const named = [...(data.withAnotherLeader ?? []).flatMap((b: BesideLeader) => [...b.units, ...(b.besideUnits ?? [])]), ...(data.insteadOf ?? []).flatMap((s: StandIn) => s.units), ...(data.joins ?? []).flatMap((j: Joining) => j.units ?? [])];
   return [
@@ -377,13 +381,13 @@ export function validateProfiles(identityValue: unknown, records: CatalogueRecor
     for (const field of REQUIRED[kind]) {
       if (data[field] === undefined && !gapped.has(field)) errors.push(`${at} has no ${field} and no gap for it`);
     }
-    for (const model of data.models ?? []) {
+    for (const model of [...(data.models ?? []), ...((data as TransportProfileData).capacity?.whenEquipped ?? []).flatMap(({ model }) => model ?? [])]) {
       if (!refsOf(entries.get(key("model", model)), "unit").includes(data.unit)) errors.push(`${at} names model:${model}, which belongs to another unit`);
     }
     if (kind === "unit-profile") errors.push(...baseSizeErrors(at, data as UnitProfileData, unitModels.get(data.unit) ?? []));
     if (kind === "transport-profile") {
-      const gear = (data as TransportProfileData).capacity?.whenEquipped?.map(({ wargear }) => wargear) ?? [];
-      if (new Set(gear).size !== gear.length) errors.push(`${at} has multiple capacities for the same wargear`);
+      const gear = (data as TransportProfileData).capacity?.whenEquipped?.map(({ wargear, model }) => wargear ?? `model:${model}`) ?? [];
+      if (new Set(gear).size !== gear.length) errors.push(`${at} has multiple capacities for the same wargear or model`);
     }
     const targets = [...(data.leads ?? []), ...(data.supports ?? []), ...((data as AttachmentData).conditional ?? []).flatMap((c) => c.units ?? [])];
     const led = new Set([...(data.leads ?? []), ...((data as AttachmentData).conditional ?? []).filter((c) => c.role === "leads").flatMap((c) => c.units ?? [])]);

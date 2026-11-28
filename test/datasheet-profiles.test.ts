@@ -158,6 +158,24 @@ test("conditional capacity can only name gear the transport carries or offers", 
   assert.deepEqual(found, [`transport-profile:${WARDENS} names wargear:synthetic.ember-staff, which unit:${WARDENS} neither carries nor offers`]);
 });
 
+test("a capacity may depend on a model of the transport's own unit", () => {
+  const found = errors((id, recs) => {
+    const model = `${WARDENS}.leader`;
+    transport(id, recs, { loads: [[transportLoad]], whenEquipped: [{ model, pool: { ...transportLoad, limit: 8 } }] });
+    entry(id, "transport-profile", WARDENS).references!.push({ kind: "model", id: model });
+  });
+  assert.deepEqual(found, []);
+});
+
+test("a capacity cannot depend on another unit's model", () => {
+  const found = errors((id, recs) => {
+    const model = `${UNIT}.pyre-lord.lord`;
+    transport(id, recs, { loads: [[transportLoad]], whenEquipped: [{ model, pool: transportLoad }] });
+    entry(id, "transport-profile", WARDENS).references!.push({ kind: "model", id: model });
+  });
+  assert.deepEqual(found, [`transport-profile:${WARDENS} names model:${UNIT}.pyre-lord.lord, which belongs to another unit`]);
+});
+
 test("an attachment cannot name a unit its identity entry does not reference", () => {
   const found = errors((_, recs) => record(recs, "attachment", `${UNIT}.pyre-lord`).data.leads.push(`${UNIT}.ash-drones`));
   assert.deepEqual(found, [`attachment:${UNIT}.pyre-lord names unit:${UNIT}.ash-drones but its identity entry does not reference it`]);

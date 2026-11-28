@@ -304,8 +304,9 @@
             "whenEquipped": {
               "type": "array", "minItems": 1,
               "items": {
-                "type": "object", "additionalProperties": false, "required": ["wargear", "pool"],
-                "properties": { "wargear": { "$ref": "#/$defs/id" }, "pool": { "$ref": "#/$defs/transportPool" } }
+                "type": "object", "additionalProperties": false, "required": ["pool"],
+                "oneOf": [{ "required": ["wargear"] }, { "required": ["model"] }],
+                "properties": { "wargear": { "$ref": "#/$defs/id" }, "model": { "$ref": "#/$defs/id" }, "pool": { "$ref": "#/$defs/transportPool" } }
               }
             },
             "excluded": {

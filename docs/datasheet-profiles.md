@@ -71,7 +71,7 @@ A profile's `baseSize` is one base, or one of these forms built from bases:
 
 Each `loads` entry is one way to load the transport. Each consists of one or more pools, and eligible passengers may occupy those pools at the same time. A pool gives its `limit`, whether it `count`s models or units, its `selectors` and an optional `maxWounds`. A selector is a keyword or a phrase formed by consecutive keywords. A passenger can match any selector in the list.
 
-An `excluded` entry refuses a passenger matching its selectors unless an `except` selector also matches. `space` sets the number of places a matching model takes. Use the first matching entry and one place by default. The optional `moreWoundsThan` threshold is strict. If the transport carries a `whenEquipped` wargear item, that item's pool replaces the first pool of the first load. Multiple active replacements need a ruling before the capacity can be evaluated.
+An `excluded` entry refuses a passenger matching its selectors unless an `except` selector also matches. `space` sets the number of places a matching model takes. Use the first matching entry and one place by default. The optional `moreWoundsThan` threshold is strict. A `whenEquipped` entry names a `wargear` item or a `model`. While the transport carries that item, or its unit includes that model, the entry's pool replaces the first pool of the first load. A model is named where the datasheet's equipment is a model of the unit, as the Tidewall Shieldline's Tidewall defence platform is. Multiple active replacements need a ruling before the capacity can be evaluated.
 
 `firingDeck` gives the number of embarked models that can shoot from the transport, where its datasheet has Firing Deck.
 
@@ -83,7 +83,7 @@ A gap is `{ "field", "reason" }`. `unrepresentable` means the source prints a va
 
 ## Local and qualified references
 
-A profile's `unit` bounds what else it may name. Its `models` must belong to that unit, and any weapon profile or equipment condition must refer to wargear the unit carries or offers, or that a bundle it carries or offers includes at any depth. Attachment targets are qualified: they may name any current unit in the release, including another faction's. Every reference resolves within the record's own rules version, so a release that holds only some factions cannot name a unit outside them.
+A profile's `unit` bounds what else it may name. Its `models` must belong to that unit, and any weapon profile or equipment condition must refer to wargear the unit carries or offers, or that a bundle it carries or offers includes at any depth. A transport's `whenEquipped` model must belong to its unit. Attachment targets are qualified: they may name any current unit in the release, including another faction's. Every reference resolves within the record's own rules version, so a release that holds only some factions cannot name a unit outside them.
 
 ## Validation
 
