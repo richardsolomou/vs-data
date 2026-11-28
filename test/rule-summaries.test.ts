@@ -231,6 +231,28 @@ test("a Stratagem's Detachment is a reference of its identity entry", () => {
   );
 });
 
+test("a detachment rule names its Detachment as a Stratagem does", () => {
+  const detachment = { kind: "detachment", id: "synthetic.ember-host.kindled-vow" };
+  assert.deepEqual(
+    errors((id, recs) => {
+      Object.assign(data(recs, "ability", OATH.id), { ruleType: "detachment-rule", detachment });
+      id.entries.find((e) => e.id === OATH.id)!.references!.push(detachment);
+    }),
+    [],
+  );
+});
+
+test("an army rule names no Detachment", () => {
+  const detachment = { kind: "detachment", id: "synthetic.ember-host.kindled-vow" };
+  assert.deepEqual(
+    errors((id, recs) => {
+      data(recs, "ability", OATH.id).detachment = detachment;
+      id.entries.find((e) => e.id === OATH.id)!.references!.push(detachment);
+    }),
+    [`ability:${OATH.id} names a Detachment but is not a Stratagem, Enhancement or detachment rule`],
+  );
+});
+
 test("a Stratagem's windows give each of its phases a turn, and differ", () => {
   const timing = (recs: CatalogueRecord[], windows: object[]) => Object.assign(data(recs, "ability", VOLLEY).stratagem, { phases: ["shooting", "fight"], turn: "any", windows });
   assert.deepEqual(errors((_, recs) => timing(recs, [{ phase: "shooting", turn: "opponent" }, { phase: "fight", turn: "any" }])), []);

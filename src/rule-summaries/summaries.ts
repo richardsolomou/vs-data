@@ -32,7 +32,7 @@ type Card = "primary" | "secondary";
 export type AbilityData = SummaryData & {
   ruleType: "army-rule" | "detachment-rule" | "stratagem" | "core-stratagem" | "enhancement" | "unit-ability" | "core-ability" | "weapon-ability";
   group?: string;
-  /** The Detachment entry a Stratagem or Enhancement belongs to. */
+  /** The Detachment entry a Stratagem, Enhancement or detachment rule belongs to. */
   detachment?: Ref;
   /** The wargear entries a unit ability is the rule of. */
   wargear?: Ref[];
@@ -205,7 +205,7 @@ export function validateSummaries(identityValue: unknown, records: CatalogueReco
         errors.push(`${at} Stratagem windows must give each of its phases, in order, turns that differ, with turn any`);
       if (detachment) {
         const target = entries.get(key(detachment));
-        if (ruleType !== "stratagem" && ruleType !== "enhancement") errors.push(`${at} names a Detachment but is not a Stratagem or Enhancement`);
+        if (ruleType !== "stratagem" && ruleType !== "enhancement" && ruleType !== "detachment-rule") errors.push(`${at} names a Detachment but is not a Stratagem, Enhancement or detachment rule`);
         else if (!target || target.retired) errors.push(`${at} names ${key(detachment)}, which is not current in the identity release`);
         else if (!entry.references?.some((r) => key(r) === key(detachment))) errors.push(`${at} names ${key(detachment)} but its identity entry does not reference it`);
       }

@@ -10,7 +10,7 @@ The [MFM 1.6 input](../data/mfm-1-6/rule-summaries/README.md) holds the summarie
 
 | Category | Kind | `data` beside the common fields |
 | --- | --- | --- |
-| `rules-reference` | `ability` | `ruleType`, optional `group`, for a Stratagem or Enhancement an optional `detachment`, for a unit ability an optional `wargear`, and for a Stratagem `cp`, optional `stratagem` timing and optional `parts`. |
+| `rules-reference` | `ability` | `ruleType`, optional `group`, for a Stratagem, Enhancement or detachment rule an optional `detachment`, for a unit ability an optional `wargear`, and for a Stratagem `cp`, optional `stratagem` timing and optional `parts`. |
 | `rules-reference` | `core-rule` | `document`, optional `section`, `ruleNumber`, `order`, `anchor`, `parent` and `stratagem`. |
 | `rules-reference` | `core-ability`, `weapon-ability` | `parameterized: true` when the keyword takes values, such as Sustained Hits X. |
 | `rules-reference` | `faq` | `publication`, `amends`, optional `amendsUnlisted`. |
@@ -18,7 +18,7 @@ The [MFM 1.6 input](../data/mfm-1-6/rule-summaries/README.md) holds the summarie
 | `mission-rules` | `mission-award` | `pack`, `card`, `vp` and optional `max`. |
 | `mission-rules` | `mission-action`, `mission-twist` | `pack`. |
 
-`ruleType` is `army-rule`, `detachment-rule`, `stratagem`, `core-stratagem`, `enhancement`, `unit-ability`, `core-ability` or `weapon-ability`. A `core-ability` or `weapon-ability` is a core ability or weapon ability as a faction's rules list it, such as Deep Strike or Deadly Demise D6; its entry references the `core-ability` or `weapon-ability` record that defines the keyword. `group` is the display heading the rule is printed under, such as its detachment. `detachment` names the Detachment entry a detachment's Stratagem or Enhancement belongs to, by `{ kind: "detachment", id }`, so an app can join them without matching names; a core Stratagem has none. `wargear` names the wargear entries a unit ability is the rule of, by `{ kind: "wargear", id }`: it applies to a unit only while its list takes one of them, so an app finds the rule from the wargear taken. A Stratagem states its `cp` cost, and only a Stratagem has one. Its `stratagem` timing gives the `phases` it can be used in, the `turn` (`own`, `opponent`, `any`), its `type` (`battle-tactic`, `strategic-ploy`, `epic-deed`, `wargear`) and `oncePerPhase`:
+`ruleType` is `army-rule`, `detachment-rule`, `stratagem`, `core-stratagem`, `enhancement`, `unit-ability`, `core-ability` or `weapon-ability`. A `core-ability` or `weapon-ability` is a core ability or weapon ability as a faction's rules list it, such as Deep Strike or Deadly Demise D6; its entry references the `core-ability` or `weapon-ability` record that defines the keyword. `group` is the display heading the rule is printed under, such as its detachment. `detachment` names the Detachment entry a detachment's Stratagem, Enhancement or detachment rule belongs to, by `{ kind: "detachment", id }`, so an app can join them without matching names; a core Stratagem and an army rule have none. `wargear` names the wargear entries a unit ability is the rule of, by `{ kind: "wargear", id }`: it applies to a unit only while its list takes one of them, so an app finds the rule from the wargear taken. A Stratagem states its `cp` cost, and only a Stratagem has one. Its `stratagem` timing gives the `phases` it can be used in, the `turn` (`own`, `opponent`, `any`), its `type` (`battle-tactic`, `strategic-ploy`, `epic-deed`, `wargear`) and `oncePerPhase`:
 
 - `phases` are `command`, `movement`, `shooting`, `charge`, `fight` and `end-of-turn`, the end of a turn after its Fight phase. A Stratagem usable in any phase lists all six, so it differs from one that names the five phases.
 - Where the phases' turns differ, such as your opponent's Shooting phase or either player's Fight phase, `windows` gives each phase its `turn`, as `[{ phase, turn }]` in the order of `phases`, and `turn` is `any`.
@@ -100,7 +100,7 @@ Identity entries without a record are listed as `unresolved`, and their category
 - A Stratagem has a `cp` cost, and no other ability has a cost, Stratagem timing or Stratagem parts.
 - A Stratagem's parts each parse with the summary text grammar and open with a paragraph, and its summary is them joined.
 - A Stratagem's `windows` give each of its `phases` in order, with turns that differ, and its `turn` is `any`.
-- Only a Stratagem or Enhancement names a `detachment`, which is current and appears in its identity entry's `references`.
+- Only a Stratagem, Enhancement or detachment rule names a `detachment`, which is current and appears in its identity entry's `references`.
 - Only a unit ability names `wargear`, and each is current and appears in its identity entry's `references`.
 - No two core rules of one `document` share an `order` or an `anchor`, and a core rule's `stratagem` is a current core Stratagem in its identity entry's `references`.
 - `vs-data-facts` facts match the shape for the record's kind, with award rounds in ascending order, and `vs-data-mechanic` facts validate as a mechanic record.
