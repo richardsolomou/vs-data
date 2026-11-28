@@ -16,8 +16,12 @@ export type Counts = Record<string, number>;
  */
 export type When = { faction?: string; detachment?: string; warlord?: string; allegiance?: string; wargear?: string };
 type RosterBounds = { min?: number; max?: number };
-/** How many units holding every keyword a roster of the faction may hold; a detachment's row replaces the faction's bounds. */
-export type UnitLimit = RosterBounds & { keywords: string[]; detachments?: (RosterBounds & { detachment: string })[] };
+/**
+ * A roster holds between `min` and `max` units with all `keywords`, or with `anyOf`, at most `max` units matching any one
+ * alternative, and with `exclusive`, units that all fit one alternative; a detachment's row replaces the bounds, never
+ * `exclusive`. `keywords` then lists every keyword the alternatives name.
+ */
+export type UnitLimit = RosterBounds & { keywords: string[]; anyOf?: string[][]; exclusive?: true; detachments?: (RosterBounds & { detachment: string })[] };
 /** At most `max` of an entry's units holding every keyword; a `free` unit does not count while enough `per` units back it. */
 export type AllyLimit = { keywords: string[]; battleSize: string; max: number; free?: { keywords: string[]; per: string[] }[] };
 /** Units a roster may hold beyond its own and its parent's, under the entry's conditions. */
@@ -411,6 +415,15 @@ export function validateDefinitions(identityValue: unknown, records: CatalogueRe
     for (const [i, limit] of (faction.data.unitLimits ?? []).entries()) {
       const path = `faction:${faction.id} unitLimits/${i}`;
       checkRosterBounds(path, limit);
+      if (limit.anyOf) {
+        const named = [...new Set(limit.anyOf.flat())].sort();
+        if (JSON.stringify(named) !== JSON.stringify([...limit.keywords].sort())) errors.push(`${path} keywords must list every keyword its anyOf names`);
+        // A reader that does not know anyOf counts only units holding every keyword, fewer than the entry counts: a minimum
+        // would make it stricter than the entry.
+        if (limit.min !== undefined || limit.detachments?.some((row) => row.min !== undefined)) errors.push(`${path} has anyOf and a min`);
+        const within = (a: string[], b: string[]) => a.every((k) => b.includes(k));
+        if (limit.anyOf.some((a, i) => limit.anyOf!.some((b, j) => i !== j && within(a, b)))) errors.push(`${path} has an anyOf alternative within another`);
+      }
       const seen = new Set<string>();
       for (const row of limit.detachments ?? []) {
         checkRosterBounds(`${path} detachment:${row.detachment}`, row);
