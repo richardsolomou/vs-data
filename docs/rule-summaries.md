@@ -26,7 +26,7 @@ The [MFM 1.6 input](../data/mfm-1-6/rule-summaries/README.md) holds the summarie
 
 A Stratagem's `parts` are its `when`, `target`, `effect` and optional `restrictions`, the four parts the official app gives it, each [summary text](#summary-text) that opens with a paragraph. Its `summary` is then `stratagemSummary(parts)`: the parts in that order, separated by a blank line, each opening with its bold label, such as `**When:**`. Show the parts where an app lays them out, or the summary as one block.
 
-A `unit-ability` several factions print on the same datasheet with the same text, such as the Chaos Land Raider's Damaged rule in each Chaos faction, can be one record for all of them. Its identity entry then references the `unit` entry of each faction's datasheet it applies to, by `{ kind: "unit", id }`, so an app joins the rule to every one of those units without matching names or IDs.
+A `unit-ability`'s identity entry references the `unit` entry of each datasheet that prints it, by `{ kind: "unit", id }`, so an app joins a unit's rules to it without matching names or IDs. Its summary links no unit, so every `unit` it references is one that prints it. A unit ability several factions print on the same datasheet with the same text, such as the Chaos Land Raider's Damaged rule in each Chaos faction, can be one record for all of them, and then references each faction's unit. A unit ability whose datasheet has no current `unit` entry in its version references no unit.
 
 A clarification the core rules number beneath a rule, such as 01.02.06 under Units and Models, is a `core-rule` whose `parent` is that rule, by `{ kind: "core-rule", id }`. The parent is current, is a reference of the clarification's identity entry, and has no parent of its own.
 
